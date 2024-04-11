@@ -14,11 +14,19 @@ def check_and_write_header(csv_file_path, headings):
 
 # Define CSV file path and headings
 csv_file_path = 'data.csv'
+
+# ALL DATA
+# headings = [
+#     "timestamp", "index", "middle", "ring", "piny","thumb",
+#     "Accelerometer Xraw", "Accelerometer Yraw", "Accelerometer Zraw",
+#     "Accelerometer Xnorm", "Accelerometer Ynorm", "Accelerometer Znorm",
+#     "Gyroscope Xraw", "Gyroscope Yraw", "Gyroscope Zraw",
+#     "Gyroscope Xnorm", "Gyroscope Ynorm", "Gyroscope Znorm","Category"
+# ]
+
 headings = [
-    "timestamp", "index", "middle", "ring", "piny",
-    "Accelerometer Xraw", "Accelerometer Yraw", "Accelerometer Zraw",
+    "timestamp", "index", "middle", "ring", "piny","thumb",
     "Accelerometer Xnorm", "Accelerometer Ynorm", "Accelerometer Znorm",
-    "Gyroscope Xraw", "Gyroscope Yraw", "Gyroscope Zraw",
     "Gyroscope Xnorm", "Gyroscope Ynorm", "Gyroscope Znorm","Category"
 ]
 
@@ -52,8 +60,9 @@ with open(csv_file_path, mode='a', newline='') as file:
     while True:
         if serialInst.in_waiting:
             packet = serialInst.readline()
-            data = packet.decode('utf').rstrip('\n').split(',')
+            data = packet.decode('utf').rstrip('\n\r').split(',')
             timestamp = datetime.now().strftime('%H:%M:%S')
             row = [timestamp] + data
             writer.writerow(row)
             print(row)
+

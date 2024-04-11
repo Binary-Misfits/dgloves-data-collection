@@ -8,11 +8,24 @@ MPU6050 mpu;
 int flexpin0 = A0; // index
 int flexpin1 = A1; // middle
 int flexpin2 = A2; // ring
-int flexpin3 = A3; // pinky
+int flexpin3_and_flexpin4 = A3; // pinky and thumb
+
+const int S0 = 2; // Address pin 0
+const int S1 = 3; // Address pin 1
+const int S2 = 4; // Address pin 2
+
 
 void setup() {
   Serial.begin(9600);
   Serial.println("Initialize MPU6050");
+
+  // Set address pins as outputs
+  pinMode(S0, OUTPUT);
+  pinMode(S1, OUTPUT);
+  pinMode(S2, OUTPUT);
+  
+  // Set A2 pin as input
+  pinMode(flexpin3_and_flexpin4, INPUT);
 
   // Initialize MPU6050
   while(!mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G))
@@ -106,23 +119,24 @@ void checkGyroSettings()
 }
 
 void loop() {
+  
   // Declearing variables
-  int index; // A0
-  int middle; // A1
-  int ring; // A2
-  int pinky; // A3
+  int index = analogRead(flexpin0); // A0
+  int middle = analogRead(flexpin1); // A1
+  int ring = analogRead(flexpin2); // A2
 
-  // Getting analog ping value and storing it in variables
-  index = analogRead(flexpin0);
-  middle = analogRead(flexpin1);
-  ring = analogRead(flexpin2);
-  pinky = analogRead(flexpin3);
+  // Activating Pinkey and Deactivating thumb
+  digitalWrite(S0, LOW);
+  digitalWrite(S1, LOW);
+  digitalWrite(S2, LOW);
+  int pinky = analogRead(flexpin3_and_flexpin4);
+  
+  // Deactivating Pinkey and Activating thumb
+  digitalWrite(S0, HIGH);
+  digitalWrite(S1, LOW);
+  digitalWrite(S2, LOW);
+  int thumb = analogRead(flexpin3_and_flexpin4);
 
-  // Reading MPU6050 data
-  Vector rawAccel = mpu.readRawAccel();
-  Vector normAccel = mpu.readNormalizeAccel();
-  Vector rawGyro = mpu.readRawGyro();
-  Vector normGyro = mpu.readNormalizeGyro();
 
   // Print flex sensor readings
   // Serial.println("Flex Sensor Readings:");
@@ -139,19 +153,30 @@ void loop() {
   // Serial.print(" Pinky: ");
   Serial.print(pinky);
   Serial.print(",");
+  // Serial.print(" thumb: ");
+  Serial.print(thumb);
+  Serial.print(",");
+  // Serial.println();
+
+  // Reading MPU6050 data
+  Vector rawAccel = mpu.readRawAccel();
+  Vector normAccel = mpu.readNormalizeAccel();
+  Vector rawGyro = mpu.readRawGyro();
+  Vector normGyro = mpu.readNormalizeGyro();
 
   // Print accelerometer data
-  // Serial.println("Accelerometer Data:");
+  // Serial.println("Accelerometer Raw Data:");
   // Serial.print(" Accelerometer Xraw = ");
-  Serial.print(rawAccel.XAxis);
-  Serial.print(",");
-  // Serial.print(" Accelerometer Yraw = ");
-  Serial.print(rawAccel.YAxis);
-  Serial.print(",");
-  // Serial.print(" Accelerometer Zraw = ");
-  Serial.print(rawAccel.ZAxis);
-  Serial.print(",");
+  // Serial.print(rawAccel.XAxis);
+  // Serial.print(",");
+  // // Serial.print(" Accelerometer Yraw = ");
+  // Serial.print(rawAccel.YAxis);
+  // Serial.print(",");
+  // // Serial.print(" Accelerometer Zraw = ");
+  // Serial.print(rawAccel.ZAxis);
+  // Serial.print(",");
   //=====================================
+  // Serial.println("Accelerometer Normalize Data:");
   // Serial.print(" Accelerometer Xnorm = ");
   Serial.print(normAccel.XAxis);
   Serial.print(",");
@@ -161,19 +186,21 @@ void loop() {
   // Serial.print(" Accelerometer Znorm = ");
   Serial.print(normAccel.ZAxis);
   Serial.print(",");
+  // Serial.println();
   
   // Print gyroscope data
-  // Serial.println("Gyroscope Data:");
+  // Serial.println("Gyroscope Raw Data:");
   // Serial.print(" Gyroscope Xraw = ");
-  Serial.print(rawGyro.XAxis);
-  Serial.print(",");
-  // Serial.print(" Gyroscope Yraw = ");
-  Serial.print(rawGyro.YAxis);
-  Serial.print(",");
-  // Serial.print(" Gyroscope Zraw = ");
-  Serial.print(rawGyro.ZAxis);
-  Serial.print(",");
+  // Serial.print(rawGyro.XAxis);
+  // Serial.print(",");
+  // // Serial.print(" Gyroscope Yraw = ");
+  // Serial.print(rawGyro.YAxis);
+  // Serial.print(",");
+  // // Serial.print(" Gyroscope Zraw = ");
+  // Serial.print(rawGyro.ZAxis);
+  // Serial.print(",");
   //=====================================
+  // Serial.println("Gyroscope Normalize Data:");
   // Serial.print(" Gyroscope Xnorm = ");
   Serial.print(normGyro.XAxis);
   Serial.print(",");
@@ -183,6 +210,6 @@ void loop() {
   // Serial.print(" Gyroscope Znorm = ");
   Serial.print(normGyro.ZAxis);
   Serial.println();
-
-  delay(1000);
+  // Serial.println("======================================================");
+  delay(100);
 }
