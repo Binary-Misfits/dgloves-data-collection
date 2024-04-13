@@ -3,6 +3,7 @@ import serial.tools.list_ports
 import csv
 import os
 from datetime import datetime
+import keyboard
 
 # Function to check and write the header if necessary
 def check_and_write_header(csv_file_path, headings):
@@ -15,19 +16,10 @@ def check_and_write_header(csv_file_path, headings):
 # Define CSV file path and headings
 csv_file_path = 'data.csv'
 
-# ALL DATA
-# headings = [
-#     "timestamp", "index", "middle", "ring", "piny","thumb",
-#     "Accelerometer Xraw", "Accelerometer Yraw", "Accelerometer Zraw",
-#     "Accelerometer Xnorm", "Accelerometer Ynorm", "Accelerometer Znorm",
-#     "Gyroscope Xraw", "Gyroscope Yraw", "Gyroscope Zraw",
-#     "Gyroscope Xnorm", "Gyroscope Ynorm", "Gyroscope Znorm","Category"
-# ]
-
 headings = [
-    "timestamp", "index", "middle", "ring", "piny","thumb",
-    "Accelerometer Xnorm", "Accelerometer Ynorm", "Accelerometer Znorm",
-    "Gyroscope Xnorm", "Gyroscope Ynorm", "Gyroscope Znorm","Category"
+    "timestamp", "fid1", "fid2", "fid3", "fid4","fid0",
+    "axn", "ayn", "azn",
+    "gxn", "gyn", "gzn","label"
 ]
 
 # Ensure header is written
@@ -57,8 +49,18 @@ serialInst.open()
 with open(csv_file_path, mode='a', newline='') as file:
     writer = csv.writer(file)
 
+    record_data = False  # Flag to indicate whether to record data or not
+
     while True:
-        if serialInst.in_waiting:
+        if keyboard.is_pressed('ctrl+r'):
+            record_data = True
+            print("Recording data...")
+        
+        if keyboard.is_pressed('ctrl+x'):
+            record_data = False
+            print("Discarding data...")
+
+        if serialInst.in_waiting and record_data:
             packet = serialInst.readline()
             data = packet.decode('utf').rstrip('\n\r').split(',')
             timestamp = datetime.now().strftime('%H:%M:%S')
