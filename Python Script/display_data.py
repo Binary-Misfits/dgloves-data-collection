@@ -16,13 +16,13 @@ def visualize(data, start_time):
     finger_data.append(data[:5])
     acc_data.append(data[5:8])
     gyr_data.append(data[8:])
-    timestamp_buffer.append(int((time.time()-start_time)*1000))
+    timestamp_buffer.append(time.time()-start_time)
     
-    if len(finger_data) > 10:
-        finger_data.pop(0)
-        acc_data.pop(0)
-        gyr_data.pop(0)
-        timestamp_buffer.pop(0)
+    # if len(finger_data) > 10:
+    #     finger_data.pop(0)
+    #     acc_data.pop(0)
+    #     gyr_data.pop(0)
+    #     timestamp_buffer.pop(0)
     
     # Extract finger data and plot
     for i in range(5):
@@ -119,7 +119,7 @@ while True:
 
         plt.tight_layout()
         plt.draw()
-        plt.pause(0.001)
+        plt.pause(0.0001)
 
 # Close serial connection
 serialInst.close()
