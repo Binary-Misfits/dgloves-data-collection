@@ -26,24 +26,24 @@ class Dataset:
         self.raw: dict[str, np.ndarray[np.ndarray]] = dict()
 
         # Find the maximum length of arrays in the dataset
-        self.max_length = max([max([np.load(item).shape[0] for label_path in self.data_path.iterdir() for item in label_path.iterdir()])])
+        self.max_length = max([max([np.load(item, allow_pickle=True).shape[0] for label_path in self.data_path.iterdir() for item in label_path.iterdir()])])
         
         # Load and pad arrays for each label in the dataset
         for label in self.data_path.iterdir():
             samples = []
             for sample in label.iterdir():
-                arr = np.load(sample).astype(float)
+                arr = np.load(sample, allow_pickle=True).astype(float)[:,1:]
                 
                 # Min-max normalization except for the timestamp feature
-                min_vals = np.min(arr[:, 1:], axis=0)
-                max_vals = np.max(arr[:, 1:], axis=0)
+                min_vals = np.min(arr, axis=0)
+                max_vals = np.max(arr, axis=0)
                 
                 # Handle division by zero
                 max_vals[max_vals == min_vals] += 1e-8
                 
                 # MinMax normalization
                 normalized_arr = np.copy(arr)
-                normalized_arr[:, 1:] = (arr[:, 1:] - min_vals) / (max_vals - min_vals)
+                normalized_arr = (arr - min_vals) / (max_vals - min_vals)
                 
                 padded_arr = np.pad(normalized_arr, ((0, self.max_length - arr.shape[0]), (0, 0)), mode='constant')
                 samples.append(padded_arr)
