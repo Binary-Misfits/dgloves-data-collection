@@ -11,7 +11,7 @@ class Dataset:
 
     __cwd = Path.cwd()
 
-    def __init__(self, path: str):
+    def __init__(self, path: str, verbose: bool= False):
         """
         Initializes the Dataset object.
 
@@ -32,8 +32,11 @@ class Dataset:
         # Load and pad arrays for each label in the dataset
         for label in self.data_path.iterdir():
             samples = []
-            for sample in label.iterdir():
+            for idx, sample in enumerate(label.iterdir()):
                 arr = np.load(sample, allow_pickle=True).astype(float)[:,1:]
+                
+                # Duplicate and concatenate columns
+                arr = np.concatenate([np.repeat(arr[:, i], 2).reshape(-1, 2) for i in range(arr.shape[1])], axis=1)
                 
                 # Min-max normalization except for the timestamp feature
                 min_vals = np.min(arr, axis=0)
@@ -48,9 +51,14 @@ class Dataset:
                 
                 padded_arr = np.pad(normalized_arr, ((0, self.max_length - arr.shape[0]), (0, 0)), mode='constant')
                 samples.append(padded_arr)
+                
+                if verbose:
+                    print(f'Added sample: {idx + 1}')
             
             # Store padded arrays for each label
             self.raw[label.name] = np.stack(samples)
+            if verbose:
+                print(f'Samples for label {label} - Loaded!')
             
     def save_json(self, path: str):
         """
@@ -75,6 +83,9 @@ class Dataset:
             return len(self.raw[label])
             
         return sum(len(data) for data in self.raw.values())
+    
+    def num_classes(self):
+        return len(self.raw.keys())
     
     def split_data(self, test_size=0.2, validation_size=0.25, random_state:int =None):
         """
@@ -124,7 +135,7 @@ if __name__ == '__main__':
     
     train, val, test = dataset.split_data()
     
-    print(train)
+    print(train[1][0])
     
     # Print the first element of the first array for labels 'l' and 'r'
     # print([(label, data.shape) for label, data in dataset.raw.items() if label in ['l', 'r']])

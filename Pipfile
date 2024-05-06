@@ -3,12 +3,21 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
 
+[[source]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu121"
+verify_ssl = true
+
 [packages]
 pyserial = "*"
 keyboard = "*"
 numpy = "*"
 matplotlib = "*"
 scikit-learn = "*"
+torch = {index = "pytorch",version = ">=1.10.0"}
+torchvision = {index ="pytorch", version= ">=0.10.0"}
+torchaudio = {index ="pytorch", version= ">=0.9.0"}
+
 
 [dev-packages]
 
