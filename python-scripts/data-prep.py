@@ -1,6 +1,7 @@
 import numpy as np
 from pathlib import Path
 import json
+from sklearn.model_selection import train_test_split
 
 class Dataset:
     """
@@ -63,12 +64,67 @@ class Dataset:
         # Write formatted data to JSON file
         with open(path, 'w+') as json_file:
             json.dump(formated_data, json_file)
+            
+    def label_encodings(self):
+        return {label: idx for idx, label in enumerate(set(self.raw.keys()))}
+    
+    def length(self, label: str | None =None):
+        if label:
+            if label not in self.raw.keys(): raise ValueError(f'provided label {label} does not exist in the dataset')
+            
+            return len(self.raw[label])
+            
+        return sum(len(data) for data in self.raw.values())
+    
+    def split_data(self, test_size=0.2, validation_size=0.25, random_state:int =None):
+        """
+        Splits the dataset into training, validation, and test sets.
+
+        Args:
+        - test_size (float): Proportion of the dataset to include in the test split (default: 0.2).
+        - validation_size (float): Proportion of the dataset to include in the validation split (default: 0.25).
+        - random_state (int or None): Random state for shuffling the data (default: None).
+
+        Returns:
+        - train_data (tuple): Tuple containing a list of labels and a list of samples for training.
+        - val_data (tuple): Tuple containing a list of labels and a list of samples for validation.
+        - test_data (tuple): Tuple containing a list of labels and a list of samples for testing.
+        """
+        train_labels = []
+        train_samples = []
+        val_labels = []
+        val_samples = []
+        test_labels = []
+        test_samples = []
+
+        # Shuffle data for each label
+        for label, data in self.raw.items():
+            idx = np.arange(len(data))
+            np.random.shuffle(idx)
+            shuffled_data = data[idx]
+
+            # Split shuffled data into train, validation, and test sets
+            train, test = train_test_split(shuffled_data, test_size=test_size, random_state=random_state)
+            train, val = train_test_split(train, test_size=validation_size, random_state=random_state)
+
+            # Store split data for each label
+            train_labels.extend([label] * len(train))
+            train_samples.extend(train)
+            val_labels.extend([label] * len(val))
+            val_samples.extend(val)
+            test_labels.extend([label] * len(test))
+            test_samples.extend(test)
+
+        return (train_labels, train_samples), (val_labels, val_samples), (test_labels, test_samples)
+
                 
 if __name__ == '__main__':
     # Create Dataset object
     dataset = Dataset('database')
     
-    print([(label, data) for label, data in dataset.raw.items() if label in ['l', 'r']])
+    train, val, test = dataset.split_data()
+    
+    print(train)
     
     # Print the first element of the first array for labels 'l' and 'r'
     # print([(label, data.shape) for label, data in dataset.raw.items() if label in ['l', 'r']])

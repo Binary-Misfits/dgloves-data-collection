@@ -8,6 +8,7 @@ pyserial = "*"
 keyboard = "*"
 numpy = "*"
 matplotlib = "*"
+scikit-learn = "*"
 
 [dev-packages]
 
