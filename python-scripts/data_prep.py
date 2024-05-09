@@ -36,7 +36,7 @@ class Dataset:
                 arr = np.load(sample, allow_pickle=True).astype(float)[:,1:]
                 
                 # Duplicate and concatenate columns
-                arr = np.concatenate([np.repeat(arr[:, i], 2) for i in range(arr.shape[1])], axis=1)
+                arr = np.concatenate([np.repeat(arr[:, i], 2).reshape(-1, 2) for i in range(arr.shape[1])], axis=1)
                 
                 # Min-max normalization except for the timestamp feature
                 min_vals = np.min(arr, axis=0)
