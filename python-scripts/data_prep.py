@@ -35,11 +35,8 @@ class Dataset:
             for idx, sample in enumerate(label.iterdir()):
                 arr = np.load(sample, allow_pickle=True).astype(float)[:,1:]
                 
-                # Duplicate features from index 5 to 8 and concatenate them at the end
-                arr = np.concatenate([arr, np.tile(arr[:, 5:9], (1, 1))], axis=1)
-                
                 # Duplicate and concatenate columns
-                arr = np.concatenate([np.repeat(arr[:, i], 2).reshape(-1, 2) for i in range(arr.shape[1])], axis=1)
+                arr = np.concatenate([np.repeat(arr[:, i], 2) for i in range(arr.shape[1])], axis=1)
                 
                 # Min-max normalization except for the timestamp feature
                 min_vals = np.min(arr, axis=0)
