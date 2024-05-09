@@ -135,7 +135,7 @@ if __name__ == '__main__':
     
     train, val, test = dataset.split_data()
     
-    print(train[1][0])
+    print(train[1][0].shape)
     
     # Print the first element of the first array for labels 'l' and 'r'
     # print([(label, data.shape) for label, data in dataset.raw.items() if label in ['l', 'r']])
